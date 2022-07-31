@@ -7,6 +7,8 @@ export async function main(ns) {
     return;
   }
 
+  ns.print(ns.getPurchasedServerMaxRam());
+
   const ram = (await ns.prompt("Do you want the max RAM?", { type: "boolean" }))
     ? ns.getPurchasedServerMaxRam()
     : parseInt(
@@ -22,6 +24,10 @@ export async function main(ns) {
             "2048",
             "4096",
             "8192",
+            "16384",
+            "32768",
+            "65536",
+            "131072",
           ],
         })
       );
