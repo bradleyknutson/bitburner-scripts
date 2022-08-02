@@ -26,6 +26,8 @@ export async function main(ns) {
 
   if (threads >= 1) {
     ns.exec(hackScript, "home", threads);
+  } else {
+    ns.alert("Not enough RAM to run hackscript");
   }
 
   await hackThePlanet(ns, hackScript);

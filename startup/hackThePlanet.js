@@ -1,62 +1,64 @@
 // @ts-nocheck
 /** @param {NS} ns */
 
-import { servers as allServers } from "/startup/allServers";
+import { servers as allServers } from "/utils/allServers";
 
 export const hackThePlanet = async (ns, hackScript) => {
   for (let server of allServers) {
-    if (server.ports >= 1) {
+    const { ports, name } = server;
+    if (ports >= 1) {
       while (!ns.fileExists("BruteSSH.exe")) {
         await ns.sleep(60 * 1000);
       }
-      ns.brutessh(server.name);
+      ns.brutessh(name);
     }
-    if (server.ports >= 2) {
+    if (ports >= 2) {
       while (!ns.fileExists("FTPCrack.exe")) {
         await ns.sleep(60 * 1000);
       }
-      ns.ftpcrack(server.name);
+      ns.ftpcrack(name);
     }
-    if (server.ports >= 3) {
+    if (ports >= 3) {
       while (!ns.fileExists("relaySMTP.exe")) {
         await ns.sleep(60 * 1000);
       }
-      ns.relaysmtp(server.name);
+      ns.relaysmtp(name);
     }
-    if (server.ports >= 4) {
+    if (ports >= 4) {
       while (!ns.fileExists("HTTPworm.exe")) {
         await ns.sleep(60 * 1000);
       }
-      ns.httpworm(server.name);
+      ns.httpworm(name);
     }
-    if (server.ports >= 5) {
+    if (ports >= 5) {
       while (!ns.fileExists("SQLInject.exe")) {
         await ns.sleep(60 * 1000);
       }
-      ns.sqlinject(server.name);
+      ns.sqlinject(name);
     }
 
-    ns.nuke(server.name);
+    ns.nuke(name);
 
-    const totalRam = ns.getServerMaxRam(server.name);
-    ns.print(totalRam);
+    const totalRam = ns.getServerMaxRam(name);
+
     if (totalRam === 0) {
+      ns.print(`Skipping ${name}`);
       continue;
     }
-    ns.print("I made it here somehow");
+
     const threads = Math.floor(totalRam / ns.getScriptRam(hackScript));
 
     // ns.installBackdoor();
 
-    if (ns.isRunning(hackScript, server.name)) {
-      ns.kill(hackScript, server.name);
+    if (ns.isRunning(hackScript, name)) {
+      ns.kill(hackScript, name);
     }
 
-    if ((ns.fileExists(hackScript), server.name)) {
-      ns.rm(hackScript, server.name);
+    if ((ns.fileExists(hackScript), name)) {
+      ns.rm(hackScript, name);
     }
-    await ns.scp(hackScript, server.name);
+    await ns.scp(hackScript, name);
 
-    ns.exec(hackScript, server.name, threads);
+    ns.exec(hackScript, name, threads);
   }
 };
