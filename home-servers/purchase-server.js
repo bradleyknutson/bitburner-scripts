@@ -31,6 +31,10 @@ export async function main(ns) {
           ],
         })
       );
+  if (!ram) {
+    ns.print("You closed it out, didn't you");
+    return;
+  }
   const script = "early-hack-template.js";
 
   for (let i = 0; i < serverLimit; ++i) {
