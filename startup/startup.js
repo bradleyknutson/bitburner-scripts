@@ -8,6 +8,10 @@ import { hackThePlanet } from "startup/hackThePlanet";
 const hackScript = "early-hack-template.js";
 
 export async function main(ns) {
+  ns.exec("utils/findAllServers.js", "home", 1);
+  while (ns.isRunning("utils/findAllServers.js")) {
+    await ns.sleep(1 * 1000);
+  }
   ns.exec("home-servers/purchase-server.js", "home", 1);
 
   if (ns.isRunning(hackScript, "home")) {
