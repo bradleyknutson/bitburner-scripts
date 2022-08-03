@@ -12,8 +12,13 @@ export async function main(ns) {
     let node = "";
     const hackLevel = ns.getHackingLevel();
 
-    if (hackLevel > 900 && ns.hasRootAccess("omnia")) {
-      node = lateNodes[Math.floor(Math.random() * lateNodes.length)];
+    const earliestLateNode = lateNodes.sort((a, b) => b.level - a.level)[0];
+
+    if (
+      hackLevel > earliestLateNode.level &&
+      ns.hasRootAccess(earliestLateNode.name)
+    ) {
+      node = lateNodes[Math.floor(Math.random() * lateNodes.length)].name;
     } else if (hackLevel > 433 && ns.hasRootAccess(midNode)) {
       node = midNode;
     } else {
