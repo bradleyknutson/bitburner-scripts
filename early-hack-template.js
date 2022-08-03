@@ -1,17 +1,12 @@
 // @ts-nocheck
 /** @param {NS} ns */
 
+import { servers as allServers } from "/utils/allServers";
+
 export async function main(ns) {
   const firstNode = "joesguns";
   const midNode = "catalyst";
-  const lateNodes = [
-    "global-pharm",
-    "univ-energy",
-    "unitalife",
-    "zb-institute",
-    "solaris",
-    "omnia",
-  ];
+  const lateNodes = allServers.sort((a, b) => a.money - b.money).slice(-12);
 
   while (true) {
     let node = "";
@@ -23,6 +18,11 @@ export async function main(ns) {
       node = midNode;
     } else {
       node = firstNode;
+    }
+
+    if (hacklevel < ns.getServerRequiredHackingLevel(node)) {
+      ns.print(`Too low level for ${node}`);
+      continue;
     }
 
     const moneyThresh = ns.getServerMaxMoney(node) * 0.75;

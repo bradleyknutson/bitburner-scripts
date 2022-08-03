@@ -50,6 +50,7 @@ export async function main(ns) {
     const threads = Math.floor(ram / ns.getScriptRam(script));
 
     await ns.scp(script, hostname);
+    await ns.scp("/utils/allServers.js", hostname);
     ns.exec(script, hostname, threads);
   }
 }

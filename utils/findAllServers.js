@@ -44,9 +44,11 @@ export async function main(ns) {
     })
     .join(",");
 
+  const date = new Date(Date.now()).toISOString();
+
   await ns.write(
     "/utils/allServers.js",
-    `// @ts-nocheck\n/** @param {NS} ns */\n\nexport const servers = [${serversString}\n];`,
+    `// @ts-nocheck\n/** @param {NS} ns */\n\n// Created ${date}\n\nexport const servers = [${serversString}\n];`,
     "w"
   );
 }

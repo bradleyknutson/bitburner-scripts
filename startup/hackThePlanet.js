@@ -59,6 +59,7 @@ export const hackThePlanet = async (ns, hackScript) => {
       ns.rm(hackScript, name);
     }
     if (name !== "home") {
+      await ns.scp("/utils/allServers.js", name);
       await ns.scp(hackScript, name);
     }
 
