@@ -20,7 +20,7 @@ export async function main(ns) {
       node = firstNode;
     }
 
-    if (hacklevel < ns.getServerRequiredHackingLevel(node)) {
+    if (hackLevel < ns.getServerRequiredHackingLevel(node)) {
       ns.print(`Too low level for ${node}`);
       continue;
     }
