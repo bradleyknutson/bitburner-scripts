@@ -39,11 +39,12 @@ export const hackThePlanet = async (ns, hackScript) => {
     }
 
     ns.nuke(name);
+    ns.print(`Nuked ${name}`);
 
     const totalRam = ns.getServerMaxRam(name);
 
     if (totalRam === 0) {
-      ns.print(`Skipping ${name}`);
+      ns.print(`Skipping ${name} due to no RAM`);
       continue;
     }
 
@@ -64,5 +65,6 @@ export const hackThePlanet = async (ns, hackScript) => {
     }
 
     ns.exec(hackScript, name, threads);
+    ns.print(`Script running on ${name}`);
   }
 };
