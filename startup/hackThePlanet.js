@@ -4,6 +4,7 @@
 import { servers as allServers } from "/utils/allServers";
 
 export const hackThePlanet = async (ns, hackScript) => {
+  ns.disableLog("ALL");
   for (let server of allServers) {
     const { ports, name } = server;
     if (ports >= 1) {
@@ -50,14 +51,16 @@ export const hackThePlanet = async (ns, hackScript) => {
 
     // ns.installBackdoor();
 
-    if (ns.isRunning(hackScript, name)) {
+    if (ns.isRunning(hackScript, name) && name !== "home") {
       ns.kill(hackScript, name);
     }
 
-    if ((ns.fileExists(hackScript), name)) {
+    if (ns.fileExists(hackScript, name) && name !== "home") {
       ns.rm(hackScript, name);
     }
-    await ns.scp(hackScript, name);
+    if (name !== "home") {
+      await ns.scp(hackScript, name);
+    }
 
     ns.exec(hackScript, name, threads);
   }
