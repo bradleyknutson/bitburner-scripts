@@ -40,7 +40,7 @@ export async function main(ns) {
     } else {
       ns.getServerRequiredHackingLevel(node) < ns.getHackingLevel()
         ? await ns.hack(node)
-        : await ns.sleep(10 * 1000);
+        : await ns.sleep(1 * 1000);
     }
   }
 }
