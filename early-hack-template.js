@@ -19,7 +19,7 @@ export async function main(ns) {
       ns.hasRootAccess(earliestLateNode.name)
     ) {
       node = lateNodes[Math.floor(Math.random() * lateNodes.length)].name;
-    } else if (hackLevel > 433 && ns.hasRootAccess(midNode)) {
+    } else if (hackLevel > ns.getServerRequiredHackingLevel(midnode)) {
       node = midNode;
     } else {
       node = firstNode;
