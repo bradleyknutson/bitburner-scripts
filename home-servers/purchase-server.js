@@ -38,7 +38,7 @@ export async function main(ns) {
     ns.print("You closed it out, didn't you");
     return;
   }
-  const script = "early-hack-template.js";
+  const script = "/scripts/early-hack-template.js";
 
   for (let i = 0; i < serverLimit; ++i) {
     while (

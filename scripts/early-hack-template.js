@@ -19,15 +19,10 @@ export async function main(ns) {
       ns.hasRootAccess(earliestLateNode.name)
     ) {
       node = lateNodes[Math.floor(Math.random() * lateNodes.length)].name;
-    } else if (hackLevel > ns.getServerRequiredHackingLevel(midnode)) {
+    } else if (hackLevel > ns.getServerRequiredHackingLevel(midNode)) {
       node = midNode;
     } else {
       node = firstNode;
-    }
-
-    if (hackLevel < ns.getServerRequiredHackingLevel(node)) {
-      ns.print(`Too low level for ${node}`);
-      continue;
     }
 
     const moneyThresh = ns.getServerMaxMoney(node) * 0.75;
@@ -42,5 +37,7 @@ export async function main(ns) {
         ? await ns.hack(node)
         : await ns.sleep(1 * 1000);
     }
+
+    await ns.sleep(1000);
   }
 }
