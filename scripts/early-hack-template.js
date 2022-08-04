@@ -37,7 +37,5 @@ export async function main(ns) {
         ? await ns.hack(node)
         : await ns.sleep(1 * 1000);
     }
-
-    await ns.sleep(1000);
   }
 }
