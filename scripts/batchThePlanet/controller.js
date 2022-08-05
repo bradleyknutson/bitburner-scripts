@@ -3,11 +3,25 @@
 
 export async function main(ns) {
   // In Progress!
+  const node = "ecorp";
+
+  // ----------------------------------------------------------------------------------------
+  while (ns.getServerMoneyAvailable(node) < ns.getServerMaxMoney(node)) {
+    const growing = Math.ceil(ns.getGrowTime(node));
+    ns.exec(growFile, "home", 15000, 0, node);
+    await ns.sleep(growing + 1000);
+  }
+  while (ns.getServerSecurityLevel(node) > ns.getServerMinSecurityLevel(node)) {
+    const weakening = Math.ceil(ns.getWeakenTime(node));
+    ns.exec(weakenFile, "home", 15000, 0, node);
+    await ns.sleep(weakening + 1000);
+  }
+  // ----------------------------------------------------------------------------------------
+
   const hackFile = "/scripts/batchThePlanet/hack.js";
   const growFile = "/scripts/batchThePlanet/grow.js";
   const weakenFile = "/scripts/batchThePlanet/weaken.js";
 
-  const node = "ecorp";
   const nodeMaxMoney = ns.getServerMaxMoney(node);
   const moneyToSteal = nodeMaxMoney * 0.5;
 
@@ -31,9 +45,9 @@ export async function main(ns) {
     (securityIncreaseByGrow * numThreadsToGrow) / securityReducedByWeaken
   );
 
-  const timeToWeaken = Math.ceil(ns.getWeakenTime(node));
-  const timeToGrow = Math.ceil(ns.getGrowTime(node));
-  const timeToHack = Math.ceil(ns.getHackTime(node));
+  const timeToWeaken = ns.getWeakenTime(node);
+  const timeToGrow = ns.getGrowTime(node);
+  const timeToHack = ns.getHackTime(node);
   const delay = 250;
 
   const totalDelayTime = delay * 16;
@@ -67,10 +81,10 @@ export async function main(ns) {
     // ----------------------------------------------------------------------------------------
 
     for (let server of servers) {
-      const maxRam = ns.getServerMaxRam(server);
-      let usedRam = ns.getServerUsedRam(server);
-
-      while (maxRam - usedRam > totalBatchMemory) {
+      while (
+        ns.getServerMaxRam(server) - ns.getServerUsedRam(server) >
+        totalBatchMemory
+      ) {
         const batchId = Math.floor(Math.random() * 10000000000);
 
         const hackSleepTime = timeToWeaken - timeToHack;
@@ -112,11 +126,9 @@ export async function main(ns) {
           node,
           `batch-${batchId}-weaken2`
         );
-        usedRam = ns.getServerUsedRam(server);
-        totalBatches++;
         await ns.sleep(delay * 10);
       }
     }
-    await ns.sleep(timeToWeaken + totalDelayTime * totalBatches + 10000);
+    await ns.sleep(timeToWeaken + totalDelayTime + 10000);
   }
 }
