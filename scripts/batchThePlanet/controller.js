@@ -54,14 +54,14 @@ export async function main(ns) {
     // ----------------------------------------------------------------------------------------
     while (ns.getServerMoneyAvailable(node) < ns.getServerMaxMoney(node)) {
       const growing = Math.ceil(ns.getGrowTime(node));
-      ns.exec("/scripts/hackThePlanetBetter/grow.js", "home", 1500, 0, node);
+      ns.exec(growFile, "home", 15000, 0, node);
       await ns.sleep(growing + 1000);
     }
     while (
       ns.getServerSecurityLevel(node) > ns.getServerMinSecurityLevel(node)
     ) {
       const weakening = Math.ceil(ns.getWeakenTime(node));
-      ns.exec("/scripts/hackThePlanetBetter/weaken.js", "home", 1500, 0, node);
+      ns.exec(weakenFile, "home", 15000, 0, node);
       await ns.sleep(weakening + 1000);
     }
     // ----------------------------------------------------------------------------------------
