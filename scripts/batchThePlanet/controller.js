@@ -52,7 +52,7 @@ export async function main(ns) {
   const timeToWeaken = ns.getWeakenTime(node);
   const timeToGrow = ns.getGrowTime(node);
   const timeToHack = ns.getHackTime(node);
-  const delay = 250;
+  const delay = 150;
 
   const totalDelayTime = delay * 16;
 
@@ -94,7 +94,7 @@ export async function main(ns) {
       while (
         ns.getServerMaxRam(server) - ns.getServerUsedRam(server) >
           totalBatchMemory &&
-        batch * totalDelayTime < timeToWeaken + totalDelayTime + 10000
+        numBatch * totalDelayTime < timeToWeaken + totalDelayTime + 10000
       ) {
         const batchId = Math.floor(Math.random() * 10000000000);
 
@@ -142,6 +142,8 @@ export async function main(ns) {
         await ns.sleep(delay * 10);
       }
     }
-    await ns.sleep(timeToWeaken + totalDelayTime + 10000);
+    await ns.sleep(
+      timeToWeaken + totalDelayTime + 10000 - totalDelayTime * numBatch
+    );
   }
 }
