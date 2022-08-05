@@ -1,6 +1,5 @@
 // @ts-nocheck
 /** @param {NS} ns */
-
 export async function main(ns) {
   // A single batch consists of four actions:
 
@@ -29,9 +28,9 @@ export async function main(ns) {
   // from my home server.  After that, I can get it to repeat the batch start process continually.  With this I can calculate how many threads are needed for any given
   // server to have continually running batches.  Then I can begin pooling all of the threads I have available to do this on as many servers as possible.
 
-  // In Progress!
+  const node = "ecorp";
+  const server = "home";
 
-  const node = "the-hub";
   const nodeMaxMoney = ns.getServerMaxMoney(node);
   const nodeMoneyAvailable = ns.getServerMoneyAvailable(node);
   const moneyToSteal = nodeMaxMoney * 0.5;
@@ -45,6 +44,7 @@ export async function main(ns) {
 
   const hackAnalyzeSecurity = ns.hackAnalyzeSecurity(numThreadsToHack, node);
   const weakenAnalyze = ns.weakenAnalyze(1);
+  const securityIncreaseByGrow = 0.004;
 
   const numThreadsToGrow = Math.ceil(
     ns.growthAnalyze(node, nodeMaxMoney / (nodeMaxMoney - moneyToSteal))
@@ -56,11 +56,11 @@ export async function main(ns) {
   const growthAnalyzeSecurity = ns.growthAnalyzeSecurity(
     numThreadsToGrow,
     node,
-    4
+    ns.getServer(server).cpuCores
   );
 
   const numThreadsToWeakenAfterGrow = Math.ceil(
-    growthAnalyzeSecurity / weakenAnalyze
+    (securityIncreaseByGrow * numThreadsToGrow) / weakenAnalyze
   );
 
   const player = ns.getPlayer();
@@ -69,6 +69,7 @@ export async function main(ns) {
   const timeToHackExample = Math.ceil(ns.getHackTime(node));
 
   ns.alert(`Min Security : ${minSecurity}, Current: ${securityLevel}`);
+  ns.alert(`Max Money: ${nodeMaxMoney}, Current Money: ${nodeMoneyAvailable}`);
 
   ns.alert(
     `Money to steal: ${moneyToSteal}\nthreads to hack money: ${numThreadsToHack}\nThreads to Weaken after hacking: ${numThreadsToWeakenAfterHack}\nThreads to Grow: ${numThreadsToGrow}\nThreads to Weaken After Grow: ${numThreadsToWeakenAfterGrow}`
@@ -78,54 +79,73 @@ export async function main(ns) {
     `Time to weaken: ${timeToWeakenExample}\nTime to Grow: ${timeToGrowExample}\nTime to Hack: ${timeToHackExample}`
   );
 
-  const servers = ["home"];
-  const delay = 100;
-  for (let server of servers) {
-    const batchId = Math.random() * 100000000;
-    const timeToWeaken = ns.getWeakenTime(node);
-    const timeToGrow = ns.getGrowTime(node);
-    const timeToHack = ns.getHackTime(node);
+  ns.alert(`
+		growthAnalyzeSecurity: ${growthAnalyzeSecurity}
+		weakenAnalyze: ${weakenAnalyze}
+		numThreadsToWeakenAfterGrow: ${numThreadsToWeakenAfterGrow}
+	`);
 
-    const hackSleepTime = timeToWeaken - timeToHack;
-    ns.exec(
-      "/scripts/hackThePlanetBetter/hack.js",
-      server,
-      numThreadsToHack || 1,
-      hackSleepTime,
-      node,
-      `batch-${batchId}-hack`
-    );
+  // --------------------------------------------------------------------------------------------
+  // await ns.grow(node);
 
-    const weakenSleepTime = delay;
-    ns.exec(
-      "/scripts/hackThePlanetBetter/weaken.js",
-      server,
-      numThreadsToWeakenAfterHack || 1,
-      weakenSleepTime,
-      node,
-      `batch-${batchId}-weaken`
-    );
+  // const moneyAfterGrow = ns.getServerMoneyAvailable(node);
+  // const securityAfterGrow = ns.getServerSecurityLevel(node);
 
-    const growSleepTime = timeToWeaken - timeToGrow + delay * 2;
-    ns.exec(
-      "/scripts/hackThePlanetBetter/grow.js",
-      server,
-      numThreadsToGrow || 1,
-      growSleepTime,
-      node,
-      `batch-${batchId}-grow`
-    );
+  // ns.alert(`
+  // 	Money Before: ${nodeMoneyAvailable}
+  // 	Money After: ${moneyAfterGrow}
+  // 	Max Money: ${nodeMaxMoney}
 
-    const weakenAfterHackSleepTime = timeToWeaken + delay * 3;
-    ns.exec(
-      "/scripts/hackThePlanetBetter/weaken.js",
-      server,
-      numThreadsToWeakenAfterGrow || 1,
-      weakenAfterHackSleepTime,
-      node,
-      `batch-${batchId}-weaken2`
-    );
+  // 	Security After Grow: ${securityAfterGrow}
+  // 	Threads to weaken? ${numThreadsToWeakenAfterGrow}
+  // `)
+  // --------------------------------------------------------------------------------------------
 
-    await ns.delay(delay);
-  }
+  //   const delay = 100;
+  //   const batchId = Math.random() * 100000000;
+  //   const timeToWeaken = ns.getWeakenTime(node);
+  //   const timeToGrow = ns.getGrowTime(node);
+  //   const timeToHack = ns.getHackTime(node);
+
+  //   const hackSleepTime = timeToWeaken - timeToHack;
+  //   ns.exec(
+  //     "/scripts/hackThePlanetBetter/hack.js",
+  //     server,
+  //     numThreadsToHack || 1,
+  //     hackSleepTime,
+  //     node,
+  //     `batch-${batchId}-hack`
+  //   );
+
+  //   const weakenSleepTime = delay;
+  //   ns.exec(
+  //     "/scripts/hackThePlanetBetter/weaken.js",
+  //     server,
+  //     numThreadsToWeakenAfterHack || 1,
+  //     weakenSleepTime,
+  //     node,
+  //     `batch-${batchId}-weaken`
+  //   );
+
+  //   const growSleepTime = timeToWeaken - timeToGrow + delay * 2;
+  //   ns.exec(
+  //     "/scripts/hackThePlanetBetter/grow.js",
+  //     server,
+  //     numThreadsToGrow || 1,
+  //     growSleepTime,
+  //     node,
+  //     `batch-${batchId}-grow`
+  //   );
+
+  //   const weakenAfterHackSleepTime = delay * 3;
+  //   ns.exec(
+  //     "/scripts/hackThePlanetBetter/weaken.js",
+  //     server,
+  //     numThreadsToWeakenAfterGrow || 1,
+  //     weakenAfterHackSleepTime,
+  //     node,
+  //     `batch-${batchId}-weaken2`
+  //   );
+
+  //   await ns.sleep(delay);
 }
