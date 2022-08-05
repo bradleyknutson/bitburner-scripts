@@ -2,6 +2,7 @@
 /** @param {NS} ns */
 
 import { servers as allServers } from "/utils/allServers";
+import { transferAllFiles } from "/utils/transferAllFiles";
 
 export const hackThePlanet = async (ns, hackScript) => {
   ns.disableLog("ALL");
@@ -60,8 +61,7 @@ export const hackThePlanet = async (ns, hackScript) => {
       ns.rm(hackScript, name);
     }
     if (name !== "home") {
-      await ns.scp("/utils/allServers.js", name);
-      await ns.scp(hackScript, name);
+      await transferAllFiles(ns, name);
     }
 
     ns.exec(hackScript, name, threads);

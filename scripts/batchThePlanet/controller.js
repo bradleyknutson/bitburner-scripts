@@ -5,22 +5,26 @@ export async function main(ns) {
   // In Progress!
   const node = "ecorp";
 
-  // ----------------------------------------------------------------------------------------
-  while (ns.getServerMoneyAvailable(node) < ns.getServerMaxMoney(node)) {
-    const growing = Math.ceil(ns.getGrowTime(node));
-    ns.exec(growFile, "home", 15000, 0, node);
-    await ns.sleep(growing + 1000);
-  }
-  while (ns.getServerSecurityLevel(node) > ns.getServerMinSecurityLevel(node)) {
-    const weakening = Math.ceil(ns.getWeakenTime(node));
-    ns.exec(weakenFile, "home", 15000, 0, node);
-    await ns.sleep(weakening + 1000);
-  }
-  // ----------------------------------------------------------------------------------------
-
   const hackFile = "/scripts/batchThePlanet/hack.js";
   const growFile = "/scripts/batchThePlanet/grow.js";
   const weakenFile = "/scripts/batchThePlanet/weaken.js";
+
+  // ----------------------------------------------------------------------------------------
+  while (ns.getServerMoneyAvailable(node) < ns.getServerMaxMoney(node)) {
+    let maxGrowThreads =
+      (ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) /
+      ns.getScriptRam(growFile);
+    ns.exec(growFile, "home", maxGrowThreads, 0, node);
+    await ns.sleep(Math.ceil(ns.getGrowTime(node)) + 1000);
+  }
+  while (ns.getServerSecurityLevel(node) > ns.getServerMinSecurityLevel(node)) {
+    let maxWeakenThreads =
+      (ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) /
+      ns.getScriptRam(weakenFile);
+    ns.exec(weakenFile, "home", maxWeakenThreads, 0, node);
+    await ns.sleep(Math.ceil(ns.getWeakenTime(node)) + 1000);
+  }
+  // ----------------------------------------------------------------------------------------
 
   const nodeMaxMoney = ns.getServerMaxMoney(node);
   const moneyToSteal = nodeMaxMoney * 0.5;
@@ -61,29 +65,36 @@ export async function main(ns) {
   const totalBatchMemory =
     hackMemory + weakenMemory + growMemory + weaken2Memory;
 
-  const servers = ["home"];
+  const servers = ["home", ...ns.getPurchasedServers()];
 
   while (true) {
     // This shouldn't be hit, but... Not efficient enough just yet. Adding this in to go to bed
     // ----------------------------------------------------------------------------------------
     while (ns.getServerMoneyAvailable(node) < ns.getServerMaxMoney(node)) {
-      const growing = Math.ceil(ns.getGrowTime(node));
-      ns.exec(growFile, "home", 15000, 0, node);
-      await ns.sleep(growing + 1000);
+      await ns.sleep(timeToWeaken + 1000);
+      let maxGrowThreads =
+        (ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) /
+        ns.getScriptRam(growFile);
+      ns.exec(growFile, "home", maxGrowThreads, 0, node);
+      await ns.sleep(Math.ceil(ns.getGrowTime(node)) + 1000);
     }
     while (
       ns.getServerSecurityLevel(node) > ns.getServerMinSecurityLevel(node)
     ) {
-      const weakening = Math.ceil(ns.getWeakenTime(node));
-      ns.exec(weakenFile, "home", 15000, 0, node);
-      await ns.sleep(weakening + 1000);
+      await ns.sleep(timeToWeaken + 1000);
+      let maxWeakenThreads =
+        (ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) /
+        ns.getScriptRam(weakenFile);
+      ns.exec(weakenFile, "home", maxWeakenThreads, 0, node);
+      await ns.sleep(Math.ceil(ns.getWeakenTime(node)) + 1000);
     }
     // ----------------------------------------------------------------------------------------
-
+    let numBatch = 0;
     for (let server of servers) {
       while (
         ns.getServerMaxRam(server) - ns.getServerUsedRam(server) >
-        totalBatchMemory
+          totalBatchMemory &&
+        batch * totalDelayTime < timeToWeaken + totalDelayTime + 10000
       ) {
         const batchId = Math.floor(Math.random() * 10000000000);
 
@@ -126,6 +137,8 @@ export async function main(ns) {
           node,
           `batch-${batchId}-weaken2`
         );
+
+        numBatch++;
         await ns.sleep(delay * 10);
       }
     }

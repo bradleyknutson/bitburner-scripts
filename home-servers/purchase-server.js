@@ -1,6 +1,8 @@
 // @ts-nocheck
 /** @param {NS} ns */
 
+import { transferAllFiles } from "/utils/transferAllFiles";
+
 export async function main(ns) {
   const serverLimit = ns.getPurchasedServerLimit();
   if (ns.getPurchasedServers().length === serverLimit) {
@@ -52,8 +54,7 @@ export async function main(ns) {
 
     const threads = Math.floor(ram / ns.getScriptRam(script));
 
-    await ns.scp(script, hostname);
-    await ns.scp("/utils/allServers.js", hostname);
+    await transferAllFiles(ns, hostname);
     ns.exec(script, hostname, threads);
   }
 }
