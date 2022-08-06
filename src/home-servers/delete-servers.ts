@@ -1,7 +1,6 @@
-// @ts-nocheck
-/** @param {NS} ns */
+import { NS } from "@ns";
 
-export async function main(ns) {
+export async function main(ns: NS): Promise<void> {
   const servers = ns.getPurchasedServers();
   servers.forEach((server) => {
     ns.killall(server);

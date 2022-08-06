@@ -1,12 +1,14 @@
-// @ts-nocheck
-/** @param {NS} ns */
+import { NS } from "@ns";
 
-import { servers as allServers } from "/utils/allServers";
-import { transferAllFiles } from "/utils/transferAllFiles";
+import { servers as allServers } from "utils/allServers";
+import { transferAllFiles } from "utils/transferAllFiles";
 
-export const hackThePlanet = async (ns, hackScript) => {
+export const hackThePlanet = async (
+  ns: NS,
+  hackScript: string
+): Promise<void> => {
   ns.disableLog("ALL");
-  for (let server of allServers) {
+  for (const server of allServers) {
     const { ports, name } = server;
     if (ports >= 1) {
       while (!ns.fileExists("BruteSSH.exe")) {

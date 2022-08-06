@@ -1,7 +1,6 @@
-// @ts-nocheck
-/** @param {NS} ns */
+import { NS } from "@ns";
 
-export async function main(ns) {
+export async function main(ns: NS): Promise<void> {
   const maxNumNodes = 24;
   const moneyOverhead = 0.1;
 

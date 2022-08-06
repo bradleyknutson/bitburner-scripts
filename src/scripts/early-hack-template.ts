@@ -1,9 +1,8 @@
-// @ts-nocheck
-/** @param {NS} ns */
+import { NS } from "@ns";
 
-import { servers as allServers } from "/utils/allServers";
+import { servers as allServers } from "utils/allServers";
 
-export async function main(ns) {
+export async function main(ns: NS): Promise<void> {
   const firstNode = "joesguns";
   const midNode = "catalyst";
   const lateNodes = allServers.sort((a, b) => a.money - b.money).slice(-12);

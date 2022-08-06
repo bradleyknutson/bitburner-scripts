@@ -1,9 +1,16 @@
-// @ts-nocheck
-/** @param {NS} ns */
+import { NS } from "@ns";
 
-export async function main(ns) {
-  const servers = [];
-  const scannedNodes = [];
+export async function main(ns: NS): Promise<void> {
+  interface Server {
+    name: string;
+    ports: number;
+    ram: number;
+    money: number;
+    level: number;
+  }
+
+  const servers: string[] = [];
+  const scannedNodes: string[] = [];
   const nodesToScan = ["home"];
 
   while (nodesToScan.length !== 0) {
@@ -26,7 +33,7 @@ export async function main(ns) {
     });
   }
 
-  const serverMap = servers
+  const serverMap: Server[] = servers
     .map((server) => {
       return {
         name: server,
@@ -48,7 +55,7 @@ export async function main(ns) {
 
   await ns.write(
     "/utils/allServers.js",
-    `// @ts-nocheck\n/** @param {NS} ns */\n\n// Created ${date}\n\nexport const servers = [${serversString}\n];`,
+    `\nimport { NS } from "@ns";\n\n// Created ${date}\n\nexport const servers = [${serversString}\n];`,
     "w"
   );
 }

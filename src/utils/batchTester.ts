@@ -1,6 +1,7 @@
-// @ts-nocheck
-/** @param {NS} ns */
-export async function main(ns) {
+import { NS } from "@ns";
+
+import { servers as allServers } from "utils/allServers";
+export async function main(ns: NS): Promise<void> {
   // A single batch consists of four actions:
 
   // A hack script removes a predefined, precalculated amount of money from the target server.
@@ -28,7 +29,11 @@ export async function main(ns) {
   // from my home server.  After that, I can get it to repeat the batch start process continually.  With this I can calculate how many threads are needed for any given
   // server to have continually running batches.  Then I can begin pooling all of the threads I have available to do this on as many servers as possible.
 
-  const node = "ecorp";
+  const hackingLevel = ns.getHackingLevel();
+
+  const node = allServers
+    .sort((a, b) => b.money - a.money)
+    .filter((server) => server.level < hackingLevel)[0].name;
   const server = "home";
 
   const nodeMaxMoney = ns.getServerMaxMoney(node);
@@ -47,7 +52,11 @@ export async function main(ns) {
   const securityIncreaseByGrow = 0.004;
 
   const numThreadsToGrow = Math.ceil(
-    ns.growthAnalyze(node, nodeMaxMoney / (nodeMaxMoney - moneyToSteal))
+    ns.growthAnalyze(
+      node,
+      Math.ceil((nodeMaxMoney / (nodeMaxMoney - moneyToSteal)) * 0.1 * 1000) /
+        1000
+    )
   );
 
   const numThreadsToWeakenAfterHack = Math.ceil(
@@ -63,7 +72,7 @@ export async function main(ns) {
     (securityIncreaseByGrow * numThreadsToGrow) / weakenAnalyze
   );
 
-  const player = ns.getPlayer();
+  // const player = ns.getPlayer();
   const timeToWeakenExample = Math.ceil(ns.getWeakenTime(node));
   const timeToGrowExample = Math.ceil(ns.getGrowTime(node));
   const timeToHackExample = Math.ceil(ns.getHackTime(node));

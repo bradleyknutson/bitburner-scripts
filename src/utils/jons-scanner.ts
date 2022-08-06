@@ -1,6 +1,5 @@
-// @ts-nocheck
-/** @param {NS} ns */
-export async function main(ns) {
+import { NS } from "@ns";
+export async function main(ns: NS): Promise<void> {
   const servers = ns.scan();
   const modifiedServers = servers.filter((node) => {
     return (
