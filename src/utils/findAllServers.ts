@@ -1,14 +1,15 @@
 import { NS } from "@ns";
+/** @param {NS} ns */
 
-export async function main(ns: NS): Promise<void> {
-  interface Server {
-    name: string;
-    ports: number;
-    ram: number;
-    money: number;
-    level: number;
-  }
+export interface Server {
+  name: string;
+  ports: number;
+  ram: number;
+  money: number;
+  level: number;
+}
 
+export async function findAllServers(ns: NS): Promise<Server[]> {
   const servers: string[] = [];
   const scannedNodes: string[] = [];
   const nodesToScan = ["home"];
@@ -45,17 +46,5 @@ export async function main(ns: NS): Promise<void> {
     })
     .sort((a, b) => a.ports - b.ports || a.level - b.level);
 
-  const serversString = serverMap
-    .map((server) => {
-      return `\n\t{name: "${server.name}", ports: ${server.ports}, ram: ${server.ram}, money: ${server.money}, level: ${server.level}}`;
-    })
-    .join(",");
-
-  const date = new Date(Date.now()).toISOString();
-
-  await ns.write(
-    "/utils/allServers.js",
-    `\nimport { NS } from "@ns";\n\n// Created ${date}\n\nexport const servers = [${serversString}\n];`,
-    "w"
-  );
+  return serverMap;
 }

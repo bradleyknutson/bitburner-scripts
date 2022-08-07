@@ -1,4 +1,5 @@
 import { NS } from "@ns";
+/** @param {NS} ns */
 
 import { transferAllFiles } from "utils/transferAllFiles";
 

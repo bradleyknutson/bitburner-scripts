@@ -1,10 +1,12 @@
 import { NS } from "@ns";
+/** @param {NS} ns */
 
-import { servers as allServers } from "utils/allServers";
+import { findAllServers } from "/utils/findAllServers";
 
 export async function main(ns: NS): Promise<void> {
   const firstNode = "joesguns";
   const midNode = "catalyst";
+  const allServers = await findAllServers(ns);
   const lateNodes = allServers.sort((a, b) => a.money - b.money).slice(-12);
 
   while (true) {

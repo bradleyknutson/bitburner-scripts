@@ -1,13 +1,15 @@
 import { NS } from "@ns";
+/** @param {NS} ns */
 
-import { servers as allServers } from "utils/allServers";
 import { transferAllFiles } from "utils/transferAllFiles";
+import { findAllServers } from "/utils/findAllServers";
 
 export const hackThePlanet = async (
   ns: NS,
   hackScript: string
 ): Promise<void> => {
   ns.disableLog("ALL");
+  const allServers = await findAllServers(ns);
   for (const server of allServers) {
     const { ports, name } = server;
     if (ports >= 1) {

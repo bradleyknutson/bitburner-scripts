@@ -1,6 +1,8 @@
 import { NS } from "@ns";
+/** @param {NS} ns */
 
-import { servers as allServers } from "utils/allServers";
+import { findAllServers } from "/utils/findAllServers";
+
 export async function main(ns: NS): Promise<void> {
   // A single batch consists of four actions:
 
@@ -30,10 +32,24 @@ export async function main(ns: NS): Promise<void> {
   // server to have continually running batches.  Then I can begin pooling all of the threads I have available to do this on as many servers as possible.
 
   const hackingLevel = ns.getHackingLevel();
-
+  const portFiles = [
+    "BruteSSH.exe",
+    "FTPCrack.exe",
+    "relaySMTP.exe",
+    "HTTPWorm.exe",
+    "SQLInject.exe",
+  ];
+  const numPortsOpen = portFiles.reduce((ports, portFile) => {
+    if (ns.fileExists(portFile)) {
+      ports += 1;
+    }
+    return ports;
+  }, 0);
+  const allServers = await findAllServers(ns);
   const node = allServers
     .sort((a, b) => b.money - a.money)
-    .filter((server) => server.level < hackingLevel)[0].name;
+    .filter((server) => server.level <= hackingLevel)
+    .filter((server) => server.ports <= numPortsOpen)[0].name;
   const server = "home";
 
   const nodeMaxMoney = ns.getServerMaxMoney(node);

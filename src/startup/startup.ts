@@ -1,4 +1,5 @@
 import { NS } from "@ns";
+/** @param {NS} ns */
 
 import { hackThePlanet } from "startup/hackThePlanet";
 
@@ -6,10 +7,7 @@ import { hackThePlanet } from "startup/hackThePlanet";
 const hackScript = "/scripts/early-hack-template.js";
 
 export async function main(ns: NS): Promise<void> {
-  ns.exec("utils/findAllServers.js", "home", 1);
-  while (ns.isRunning("utils/findAllServers.js")) {
-    await ns.sleep(1 * 1000);
-  }
+  ns.exec("utils/writeServersToFile.js", "home", 1);
   ns.exec("home-servers/purchase-server.js", "home", 1);
 
   if (ns.isRunning(hackScript, "home")) {

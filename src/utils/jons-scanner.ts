@@ -1,4 +1,5 @@
 import { NS } from "@ns";
+/** @param {NS} ns */
 export async function main(ns: NS): Promise<void> {
   const servers = ns.scan();
   const modifiedServers = servers.filter((node) => {
