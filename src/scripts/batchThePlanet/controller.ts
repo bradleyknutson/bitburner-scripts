@@ -38,9 +38,25 @@ export async function main(ns: NS): Promise<void> {
       .filter((server) => server.ports <= numPortsOpen);
 
     let longestWeakenTime = 0;
+    const startingTime = Date.now();
+    const startingWeaken = ns.getWeakenTime(allNodes[0].name);
 
     for (const nodeObj of allNodes) {
+      const delay = 100;
+      const totalDelayTime = delay * 11;
+      let numBatch = 0;
+
+      const nodeStartTime = Date.now();
+      if (
+        nodeStartTime - startingTime >
+        (startingWeaken + totalDelayTime * numBatch) * 2
+      ) {
+        continue;
+      }
       const node = nodeObj.name;
+
+      const nodeMaxMoney = ns.getServerMaxMoney(node);
+      const moneyToSteal = nodeMaxMoney * 0.75;
 
       ns.tprint(`Hacking node ${node}`);
 
@@ -71,9 +87,6 @@ export async function main(ns: NS): Promise<void> {
 
       // ----------------------------------------------------------------------------------------
 
-      const nodeMaxMoney = ns.getServerMaxMoney(node);
-      const moneyToSteal = nodeMaxMoney * 0.5;
-
       const numThreadsToHack = Math.floor(
         ns.hackAnalyzeThreads(node, moneyToSteal)
       );
@@ -101,10 +114,6 @@ export async function main(ns: NS): Promise<void> {
         longestWeakenTime = timeToWeaken;
       }
 
-      const delay = 150;
-
-      const totalDelayTime = delay * 11;
-
       const hackMemory = hackRAM * numThreadsToHack;
       const weakenMemory = weakenRAM * numThreadsToWeakenAfterHack;
       const weaken2Memory = weakenRAM * numThreadsToWeakenAfterGrow;
@@ -121,7 +130,6 @@ export async function main(ns: NS): Promise<void> {
           .map((server) => server.name),
       ];
 
-      let numBatch = 0;
       for (const server of servers) {
         while (
           ns.getServerMaxRam(server) - ns.getServerUsedRam(server) >

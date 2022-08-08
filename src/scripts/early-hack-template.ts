@@ -1,26 +1,18 @@
 import { NS } from "@ns";
 /** @param {NS} ns */
 
-import { findAllServers } from "/utils/findAllServers";
-
 export async function main(ns: NS): Promise<void> {
   const firstNode = "joesguns";
   const midNode = "catalyst";
-  const allServers = await findAllServers(ns);
-  const lateNodes = allServers.sort((a, b) => a.money - b.money).slice(-12);
 
   while (true) {
     let node = "";
     const hackLevel = ns.getHackingLevel();
 
-    const earliestLateNode = lateNodes.sort((a, b) => b.level - a.level)[0];
-
     if (
-      hackLevel > earliestLateNode.level &&
-      ns.hasRootAccess(earliestLateNode.name)
+      hackLevel > ns.getServerRequiredHackingLevel(midNode) &&
+      ns.hasRootAccess(midNode)
     ) {
-      node = lateNodes[Math.floor(Math.random() * lateNodes.length)].name;
-    } else if (hackLevel > ns.getServerRequiredHackingLevel(midNode)) {
       node = midNode;
     } else {
       node = firstNode;
