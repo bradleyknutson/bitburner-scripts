@@ -45,16 +45,17 @@ export async function main(ns: NS): Promise<void> {
     }
     return ports;
   }, 0);
-  const allServers = await findAllServers(ns);
-  const node = allServers
-    .sort((a, b) => b.money - a.money)
-    .filter((server) => server.level <= hackingLevel)
-    .filter((server) => server.ports <= numPortsOpen)[0].name;
+  // const allServers = await findAllServers(ns);
+  // const node = allServers
+  //   .sort((a, b) => b.money - a.money)
+  //   .filter((server) => server.level <= hackingLevel)
+  //   .filter((server) => server.ports <= numPortsOpen)[0].name;
+  const node = "harakiri-sushi";
   const server = "home";
 
   const nodeMaxMoney = ns.getServerMaxMoney(node);
   const nodeMoneyAvailable = ns.getServerMoneyAvailable(node);
-  const moneyToSteal = nodeMaxMoney * 0.5;
+  const moneyToSteal = nodeMaxMoney * 0.05;
 
   const minSecurity = ns.getServerMinSecurityLevel(node);
   const securityLevel = ns.getServerSecurityLevel(node);
@@ -67,11 +68,12 @@ export async function main(ns: NS): Promise<void> {
   const weakenAnalyze = ns.weakenAnalyze(1);
   const securityIncreaseByGrow = 0.004;
 
+  const cores = ns.getServer(server).cpuCores;
   const numThreadsToGrow = Math.ceil(
     ns.growthAnalyze(
       node,
-      Math.ceil((nodeMaxMoney / (nodeMaxMoney - moneyToSteal)) * 0.1 * 1000) /
-        1000
+      Math.ceil((nodeMaxMoney / (nodeMaxMoney - moneyToSteal)) * 100) / 100,
+      cores
     )
   );
 

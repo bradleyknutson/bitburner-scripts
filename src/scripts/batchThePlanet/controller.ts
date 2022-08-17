@@ -34,8 +34,12 @@ export async function main(ns: NS): Promise<void> {
     const allServers = await findAllServers(ns);
     const allNodes = await allServers
       .sort((a, b) => b.money - a.money)
+      .filter((server) => server.money > 0)
       .filter((server) => server.level <= hackingLevel)
-      .filter((server) => server.ports <= numPortsOpen);
+      .filter((server) => server.ports <= numPortsOpen)
+      .filter(
+        (server) => server.name !== "catalyst" && server.name !== "joesguns"
+      );
 
     let longestWeakenTime = 0;
     const startingTime = Date.now();
@@ -49,88 +53,91 @@ export async function main(ns: NS): Promise<void> {
       const nodeStartTime = Date.now();
       if (
         nodeStartTime - startingTime >
-        (startingWeaken + totalDelayTime * numBatch) * 2
+        startingWeaken + totalDelayTime * numBatch
       ) {
         continue;
       }
       const node = nodeObj.name;
 
       const nodeMaxMoney = ns.getServerMaxMoney(node);
-      const moneyToSteal = nodeMaxMoney * 0.75;
-
-      ns.tprint(`Hacking node ${node}`);
+      const moneyToSteal = nodeMaxMoney * 0.5;
 
       // ----------------------------------------------------------------------------------------
-      while (
+      if (node === allNodes[0].name) {
+        while (
+          ns.getServerMoneyAvailable(node) < ns.getServerMaxMoney(node) ||
+          ns.getServerSecurityLevel(node) > ns.getServerMinSecurityLevel(node)
+        ) {
+          // const maxGrowThreads = Math.floor(
+          //   (ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) /
+          //     growRAM /
+          //     2
+          // );
+          // const maxWeakenThreads = Math.floor(
+          //   (ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) /
+          //     weakenRAM /
+          //     2
+          // );
+
+          // const growWaitTime = Math.ceil(
+          //   ns.getWeakenTime(node) - ns.getGrowTime(node)
+          // );
+          // ns.exec(weakenFile, "home", maxWeakenThreads, 1000, node);
+          // ns.exec(growFile, "home", maxGrowThreads, growWaitTime, node);
+          const weakenOneNodeScript = "/utils/weakenOneBatch.js";
+          ns.exec(weakenOneNodeScript, "home", 1, node);
+          await ns.sleep(Math.ceil(ns.getWeakenTime(node)) + 30 * 1000);
+        }
+      } else if (
         ns.getServerMoneyAvailable(node) < ns.getServerMaxMoney(node) ||
         ns.getServerSecurityLevel(node) > ns.getServerMinSecurityLevel(node)
       ) {
-        const maxGrowThreads = Math.floor(
-          (ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) /
-            growRAM /
-            2
-        );
-        const maxWeakenThreads = Math.floor(
-          (ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) /
-            weakenRAM /
-            2
-        );
-
-        const growWaitTime = Math.ceil(
-          ns.getWeakenTime(node) - ns.getGrowTime(node)
-        );
-        ns.exec(weakenFile, "home", maxWeakenThreads, 1000, node);
-        ns.exec(growFile, "home", maxGrowThreads, growWaitTime, node);
-
-        await ns.sleep(Math.ceil(ns.getWeakenTime(node)) + 5000);
+        continue;
       }
 
       // ----------------------------------------------------------------------------------------
 
-      const numThreadsToHack = Math.floor(
-        ns.hackAnalyzeThreads(node, moneyToSteal)
-      );
-
-      const numThreadsToGrow = Math.ceil(
-        ns.growthAnalyze(
-          node,
-          Math.ceil((nodeMaxMoney / (nodeMaxMoney - moneyToSteal)) * 100) / 100
-        )
-      );
-
-      const numThreadsToWeakenAfterHack = Math.ceil(
-        (securityIncreaseByHack * numThreadsToHack) / securityReducedByWeaken
-      );
-
-      const numThreadsToWeakenAfterGrow = Math.ceil(
-        (securityIncreaseByGrow * numThreadsToGrow) / securityReducedByWeaken
-      );
-
-      const timeToWeaken = ns.getWeakenTime(node);
-      const timeToGrow = ns.getGrowTime(node);
-      const timeToHack = ns.getHackTime(node);
-
-      if (timeToWeaken > longestWeakenTime) {
-        longestWeakenTime = timeToWeaken;
-      }
-
-      const hackMemory = hackRAM * numThreadsToHack;
-      const weakenMemory = weakenRAM * numThreadsToWeakenAfterHack;
-      const weaken2Memory = weakenRAM * numThreadsToWeakenAfterGrow;
-      const growMemory = growRAM * numThreadsToGrow;
-
-      const totalBatchMemory =
-        hackMemory + weakenMemory + growMemory + weaken2Memory;
-
-      const servers = [
-        "home",
-        ...ns.getPurchasedServers(),
-        ...allServers
-          .sort((a, b) => a.ram - b.ram)
-          .map((server) => server.name),
-      ];
+      const servers = ["home", ...ns.getPurchasedServers()];
 
       for (const server of servers) {
+        const numThreadsToHack =
+          Math.floor(ns.hackAnalyzeThreads(node, moneyToSteal)) || 1;
+        if (numThreadsToHack < 0) {
+          continue;
+        }
+
+        const cores = ns.getServer(server).cpuCores;
+        const growth =
+          Math.ceil((nodeMaxMoney / (nodeMaxMoney - moneyToSteal)) * 100) / 100;
+
+        const numThreadsToGrow = Math.ceil(
+          ns.growthAnalyze(node, growth, cores)
+        );
+
+        const numThreadsToWeakenAfterHack = Math.ceil(
+          (securityIncreaseByHack * numThreadsToHack) / securityReducedByWeaken
+        );
+
+        const numThreadsToWeakenAfterGrow = Math.ceil(
+          (securityIncreaseByGrow * numThreadsToGrow) / securityReducedByWeaken
+        );
+
+        const timeToWeaken = ns.getWeakenTime(node);
+        const timeToGrow = ns.getGrowTime(node);
+        const timeToHack = ns.getHackTime(node);
+
+        if (timeToWeaken > longestWeakenTime) {
+          longestWeakenTime = timeToWeaken;
+        }
+
+        const hackMemory = hackRAM * numThreadsToHack;
+        const weakenMemory = weakenRAM * numThreadsToWeakenAfterHack;
+        const weaken2Memory = weakenRAM * numThreadsToWeakenAfterGrow;
+        const growMemory = growRAM * numThreadsToGrow;
+
+        const totalBatchMemory =
+          hackMemory + weakenMemory + growMemory + weaken2Memory;
+
         while (
           ns.getServerMaxRam(server) - ns.getServerUsedRam(server) >
             totalBatchMemory &&
