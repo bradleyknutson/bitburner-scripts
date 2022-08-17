@@ -60,7 +60,7 @@ export async function main(ns: NS): Promise<void> {
       const node = nodeObj.name;
 
       const nodeMaxMoney = ns.getServerMaxMoney(node);
-      const moneyToSteal = nodeMaxMoney * 0.5;
+      const moneyToSteal = nodeMaxMoney * 0.05;
 
       // ----------------------------------------------------------------------------------------
       if (node === allNodes[0].name) {
@@ -126,10 +126,6 @@ export async function main(ns: NS): Promise<void> {
         const timeToGrow = ns.getGrowTime(node);
         const timeToHack = ns.getHackTime(node);
 
-        if (timeToWeaken > longestWeakenTime) {
-          longestWeakenTime = timeToWeaken;
-        }
-
         const hackMemory = hackRAM * numThreadsToHack;
         const weakenMemory = weakenRAM * numThreadsToWeakenAfterHack;
         const weaken2Memory = weakenRAM * numThreadsToWeakenAfterGrow;
@@ -143,6 +139,10 @@ export async function main(ns: NS): Promise<void> {
             totalBatchMemory &&
           numBatch * totalDelayTime + 10000 < timeToWeaken + totalDelayTime
         ) {
+          if (timeToWeaken > longestWeakenTime) {
+            longestWeakenTime = timeToWeaken;
+          }
+
           const batchId = Math.floor(Math.random() * 10000000000);
 
           const hackSleepTime = timeToWeaken - timeToHack;
@@ -190,6 +190,6 @@ export async function main(ns: NS): Promise<void> {
         }
       }
     }
-    await ns.sleep(longestWeakenTime + 60000);
+    await ns.sleep(longestWeakenTime + 10 * 1000);
   }
 }
